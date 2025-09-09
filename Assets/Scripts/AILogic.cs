@@ -60,4 +60,43 @@ public class AILogic : MonoBehaviour
 
         return RandomEmpty(board);
     }
+
+    public static int Minimax(CellState[,] board, bool isMaximizing, int depth, CellState ai, CellState player)
+    {
+        var win = BoardLogic.GetWinner(board);
+        if (win == ai) return 10 - depth;
+        if (win == player) return depth - 10;
+        if (BoardLogic.IsFull(board)) return 0;
+
+        if (isMaximizing)
+        {
+            int best = int.MinValue;
+            for (int r = 0; r < 3; r++)
+                for (int c = 0; c < 3; c++)
+                {
+                    if (board[r, c] == CellState.Empty)
+                    {
+                        board[r, c] = ai;
+                        best = Mathf.Max(best, Minimax(board, false, depth + 1, ai, player));
+                        board[r, c] = CellState.Empty;
+                    }
+                }
+            return best;
+        }
+        else
+        {
+            int best = int.MaxValue;
+            for (int r = 0; r < 3; r++)
+                for (int c = 0; c < 3; c++)
+                {
+                    if (board[r, c] == CellState.Empty)
+                    {
+                        board[r, c] = player;
+                        best = Mathf.Min(best, Minimax(board, true, depth + 1, ai, player));
+                        board[r, c] = CellState.Empty;
+                    }
+                }
+            return best;
+        }
+    }
 }

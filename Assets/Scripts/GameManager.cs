@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using static GameManager;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class GameManager : MonoBehaviour
                 _instance = FindObjectOfType<GameManager>();
                 if (_instance == null)
                 {
-                    _instance = new GameObject("Spawned GameManager", typeof(GameManager)).GetComponent<GameManager>();
+                    _instance = new GameObject("GameManager", typeof(GameManager)).GetComponent<GameManager>();
                 }
             }
             return _instance;
@@ -31,6 +32,8 @@ public class GameManager : MonoBehaviour
     public Sprite XSprite;
     public Sprite OSprite;
     public Transform boardParent;
+    public GameObject GameOverMenu;
+    public TextMeshProUGUI gameResult;
 
     public bool gameOver = false;
     public Turn currentTurn;
@@ -41,7 +44,7 @@ public class GameManager : MonoBehaviour
     private CellState playerMark;
     private CellState AIMark;
     public AILevel aiLevel = AILevel.Normal;
-    private bool playerFirst = true;
+    public bool playerFirst = true;
 
     private void Awake()
     {
@@ -59,8 +62,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Init();
-        StartNewGame();
+
     }
 
     // Update is called once per frame
@@ -69,7 +71,7 @@ public class GameManager : MonoBehaviour
         
     }
 
-    private void Init()
+    public void InitBoard()
     {
         if (boardParent.childCount != 0) return;
 
@@ -115,21 +117,23 @@ public class GameManager : MonoBehaviour
                 if (cells[row, col] && cells[row, col].image)
                 {
                     cells[row, col].image.sprite = null;
+                    cells[row, col].image.color = Color.white;
                 }
             }
-
+        GameOverMenu.SetActive(false);
+        gameResult.text = "";
         if (currentTurn == Turn.AI)
             StartCoroutine(AIMoveRoutine());
     }
 
     public void PlayerMove(int row, int col)
     {
-        Debug.Log(currentTurn);
+        if (currentTurn != Turn.Player) return;
         if (gameOver) return;
         if (board[row, col] != CellState.Empty) return;
 
         Place(row, col, playerMark);
-        if (CheckGameOver()) return;
+        if (BoardLogic.CheckGameOver(board)) return;
 
         currentTurn = Turn.AI;
         StartCoroutine(AIMoveRoutine());
@@ -153,7 +157,7 @@ public class GameManager : MonoBehaviour
         if (move.row >= 0)
         {
             Place(move.row, move.col, AIMark);
-            if (CheckGameOver()) yield break;
+            if (BoardLogic.CheckGameOver(board)) yield break;
         }
 
         currentTurn = Turn.Player;
@@ -181,48 +185,4 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private bool CheckGameOver()
-    {
-        var winner = GetWinner(board);
-        if (winner != CellState.Empty)
-        {
-            gameOver = true;
-            return true;
-        }
-        if (IsFull(board))
-        {
-            gameOver = true;
-            Debug.Log("Game Over! Draw.");
-            return true;
-        }
-        return false;
-    }
-
-    private CellState GetWinner(CellState[,] board)
-    {
-        for (int row = 0; row < 3; row++)
-        {
-            if (board[row, 0] != CellState.Empty && board[row, 0] == board[row, 1] && board[row, 1] == board[row, 2]) return board[row, 0];
-        }
-        for (int col = 0; col < 3; col++)
-        {
-            if (board[0, col] != CellState.Empty && board[0, col] == board[1, col] && board[1, col] == board[2, col]) return board[0, col];
-        }
-        if (board[0, 0] != CellState.Empty && board[0, 0] == board[1, 1] && board[1, 1] == board[2, 2]) return board[0, 0];
-        if (board[0, 2] != CellState.Empty && board[0, 2] == board[1, 1] && board[1, 1] == board[2, 0]) return board[0, 2];
-
-        return CellState.Empty;
-    }
-
-    private bool IsFull(CellState[,] board)
-    {
-        for (int row = 0; row < 3; row++)
-        {
-            for (int col = 0; col < 3; col++)
-            {
-                if (board[row, col] == CellState.Empty) return false;
-            }
-        }
-        return true;
-    }
 }
