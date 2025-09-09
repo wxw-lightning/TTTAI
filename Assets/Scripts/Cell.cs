@@ -9,11 +9,11 @@ public class Cell : MonoBehaviour
     public int row;
     public int col;
 
-    [HideInInspector] public SpriteRenderer sr;
+    [HideInInspector] public Image image;
 
     private void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();
+        image = GetComponent<Image>();
     }
 
     private void OnMouseDown()

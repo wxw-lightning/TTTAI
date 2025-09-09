@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        Init();
     }
 
     // Update is called once per frame
@@ -68,18 +68,29 @@ public class GameManager : MonoBehaviour
 
     private void Init()
     {
-        if (boardParent.GetChild(0) != null) return;
-        for(int row = 0; row < 3; row++)
+        if (boardParent.childCount != 0) return;
+
+        for (int row = 0; row < 3; row++)
         {
             for(int col = 0; col < 3; col++)
             {
                 GameObject cellObj = Instantiate(cellPrefab, boardParent);
+                cellObj.name = $"Cell_{row}_{col}";
                 Cell cell = cellObj.GetComponent<Cell>();
                 cell.row = row;
                 cell.col = col;
                 cells[row, col] = cell;
+                if (cell.image != null)
+                {
+                    cell.image.sprite = null;
+                }
             }
         }
+        
+    }
+
+    public void StartNewGame()
+    {
         if (playerFirst)
         {
             playerMark = CellState.X;
@@ -88,15 +99,29 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            playerMark= CellState.O;
+            playerMark = CellState.O;
             AIMark = CellState.X;
             currentTurn = Turn.AI;
         }
         gameOver = false;
+
+        for (int row = 0; row < 3; row++)
+            for (int col = 0; col < 3; col++)
+            {
+                board[row, col] = CellState.Empty;
+                if (cells[row, col] && cells[row, col].image)
+                {
+                    cells[row, col].image.sprite = null;
+                }
+            }
+
+        //if (currentTurn == Turn.AI)
+            //StartCoroutine(AIMoveRoutine());
     }
 
     public void PlayerMove(int row, int col)
     {
+        Debug.Log(currentTurn);
         if (gameOver) return;
         if (board[row, col] != CellState.Empty) return;
 
@@ -110,11 +135,11 @@ public class GameManager : MonoBehaviour
     private void Place(int row, int col, CellState who)
     {
         board[row, col] = who;
-        if (cells[row, col] && cells[row, col].sr)
+        if (cells[row, col] && cells[row, col].image)
         {
-            var sr = cells[row, col].sr;
-            sr.sprite = (who == CellState.X) ? XSprite : OSprite;
-            sr.color = Color.white;
+            var i = cells[row, col].image;
+            i.sprite = (who == CellState.X) ? XSprite : OSprite;
+            i.color = Color.white;
         }
     }
 
