@@ -217,6 +217,7 @@ MonoBehaviour:
   boardParent: {fileID: 2225437}
   gameOver: 0
   currentTurn: 0
+  aiLevel: 1
 --- !u!4 &198734453
 Transform:
   m_ObjectHideFlags: 0

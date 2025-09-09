@@ -1,6 +1,7 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GameManager;
 
 public class GameManager : MonoBehaviour
 {
@@ -39,7 +40,8 @@ public class GameManager : MonoBehaviour
 
     private CellState playerMark;
     private CellState AIMark;
-    private bool playerFirst;
+    public AILevel aiLevel = AILevel.Normal;
+    private bool playerFirst = true;
 
     private void Awake()
     {
@@ -58,6 +60,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Init();
+        StartNewGame();
     }
 
     // Update is called once per frame
@@ -115,8 +118,8 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-        //if (currentTurn == Turn.AI)
-            //StartCoroutine(AIMoveRoutine());
+        if (currentTurn == Turn.AI)
+            StartCoroutine(AIMoveRoutine());
     }
 
     public void PlayerMove(int row, int col)
@@ -129,7 +132,7 @@ public class GameManager : MonoBehaviour
         if (CheckGameOver()) return;
 
         currentTurn = Turn.AI;
-        //StartCoroutine(AIMoveRoutine());
+        StartCoroutine(AIMoveRoutine());
     }
 
     private void Place(int row, int col, CellState who)
@@ -140,6 +143,41 @@ public class GameManager : MonoBehaviour
             var i = cells[row, col].image;
             i.sprite = (who == CellState.X) ? XSprite : OSprite;
             i.color = Color.white;
+        }
+    }
+    private IEnumerator AIMoveRoutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        var move = GetAIMove();
+        if (move.row >= 0)
+        {
+            Place(move.row, move.col, AIMark);
+            if (CheckGameOver()) yield break;
+        }
+
+        currentTurn = Turn.Player;
+    }
+
+    private (int row, int col) GetAIMove()
+    {
+        switch (aiLevel)
+        {
+            case AILevel.Easy:
+                {
+                    return AILogic.RandomEmpty(board);
+                }
+
+            case AILevel.Normal:
+                {
+                    return AILogic.Heuristic(board);
+                }
+
+            case AILevel.Hard:
+            default:
+                {
+                    return (AILogic.Heuristic(board));
+                }
         }
     }
 

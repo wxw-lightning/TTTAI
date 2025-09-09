@@ -16,7 +16,7 @@ public class AILogic : MonoBehaviour
     {
         
     }
-    public (int row, int col) RandomEmpty(CellState[,] b)
+    public static (int row, int col) RandomEmpty(CellState[,] b)
     {
         int count = 0;
         foreach (var s in b) if (s == CellState.Empty) count++;
@@ -35,7 +35,7 @@ public class AILogic : MonoBehaviour
         return (-1, -1);
     }
 
-    public (int row, int col) Heuristic(CellState[,] board)
+    public static (int row, int col) Heuristic(CellState[,] board)
     {
         //center
         if (board[1, 1] == CellState.Empty) return (1, 1);
