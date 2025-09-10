@@ -180,7 +180,7 @@ public class GameManager : MonoBehaviour
             case AILevel.Hard:
             default:
                 {
-                    return (AILogic.Heuristic(board));
+                    return (AILogic.MinimaxMove(board,AIMark,playerMark));
                 }
         }
     }

@@ -7,7 +7,11 @@ public class MainMenu : MonoBehaviour
 {
 
     public Button StartButton;
+    public Button QuitButton;
     public Toggle goFirst;
+    public Toggle easy;
+    public Toggle normal;
+    public Toggle hard;
 
     // Start is called before the first frame update
     void Start()
@@ -16,7 +20,10 @@ public class MainMenu : MonoBehaviour
         {
             GameManager.Instance.InitBoard();
             GameManager.Instance.StartNewGame();
-            this.gameObject.SetActive(false);
+        });
+        QuitButton.onClick.AddListener(() =>
+        {
+            Application.Quit();
         });
         goFirst.onValueChanged.AddListener(isOn =>
         {
@@ -27,6 +34,27 @@ public class MainMenu : MonoBehaviour
             else
             {
                 GameManager.Instance.playerFirst = false;
+            }
+        });
+        easy.onValueChanged.AddListener(isOn =>
+        {
+            if (isOn)
+            {
+                GameManager.Instance.aiLevel = GameManager.AILevel.Easy;
+            }
+        });
+        normal.onValueChanged.AddListener(isOn =>
+        {
+            if (isOn)
+            {
+                GameManager.Instance.aiLevel = GameManager.AILevel.Normal;
+            }
+        });
+        hard.onValueChanged.AddListener(isOn =>
+        {
+            if (isOn)
+            {
+                GameManager.Instance.aiLevel = GameManager.AILevel.Hard;
             }
         });
     }
